@@ -3,9 +3,12 @@ findspark.init()
 
 import pyspark 
 from pyspark.sql import SparkSession
-from flask import Flask, jsonify 
+from flask import Flask, jsonify, redirect, url_for 
 
-spark = SparkSession.builder.appName("GoldenLine Pyspark").getOrCreate()
+spark = SparkSession.builder \
+    .appName("GoldenLine Pyspark") \
+    .config("spark.ui.enable", "true") \
+    .getOrCreate()
 
 app = Flask(__name__)
 
@@ -17,10 +20,14 @@ def pyspark_app():
     json_data = df.toJSON().collect()
     return jsonify(json_data)
 
+@app.route('/spark-ui')
+def display_web_ui():
+    return redirect('http://127.0.0.1:4041')
 
 @app.route('/')
 def index():
     return "hello"
 
 if __name__ == '__main__':
-    app.run(debug=True, host='172.17.0.2', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
